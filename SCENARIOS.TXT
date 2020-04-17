@@ -1,0 +1,98 @@
+
+
+--- Add Hotels---
+exec create_hotel ('H0','222-222-2222','Fairbanks, AK', 'AK', 'hotel0email@h0.com');
+exec create_hotel ('H1','223-333-2222','Honolulu, HI', 'HI', 'hotel1email@h0.com');
+exec create_hotel ('H2','333-222-3333','Baltimore, MD', 'MD', 'hotel2email@h0.com');
+exec create_hotel ('H3','333-333-2222','Annapolis, MD', 'MD', 'hotel3email@h0.com');
+
+/
+declare
+hotelId int;
+roomTypeId int;
+begin
+-- Add Rooms to Hotels--
+select find_hotel('Fairbanks, AK') into hotelId from DUAL;
+select find_room_id('SMALL HALL') into roomTypeId from DUAL;
+add_rooms_to_hotel(hotelId,roomTypeId,2);
+select find_room_id('MEDIUM HALL') into roomTypeId from DUAL;
+add_rooms_to_hotel(hotelId,roomTypeId,2);
+select find_room_id('LARGE HALL') into roomTypeId from DUAL;
+add_rooms_to_hotel(hotelId,roomTypeId,2);
+select find_hotel('Honolulu, HI') into hotelId from DUAL;
+select find_room_id('LARGE HALL') into roomTypeId from DUAL;
+add_rooms_to_hotel(hotelId,roomTypeId,5);
+select find_hotel('Baltimore, MD') into hotelId from DUAL;
+select find_room_id('SMALL HALL') into roomTypeId from DUAL;
+add_rooms_to_hotel(hotelId,roomTypeId,1);
+select find_room_id('MEDIUM HALL') into roomTypeId from DUAL;
+add_rooms_to_hotel(hotelId,roomTypeId,1);
+select find_room_id('LARGE HALL') into roomTypeId from DUAL;
+add_rooms_to_hotel(hotelId,roomTypeId,1);
+select find_hotel('Annapolis, MD') into hotelId from DUAL;
+select find_room_id('SMALL HALL') into roomTypeId from DUAL;
+add_rooms_to_hotel(hotelId,roomTypeId,5);
+select find_room_id('MEDIUM HALL') into roomTypeId from DUAL;
+add_rooms_to_hotel(hotelId,roomTypeId,5);
+select find_room_id('LARGE HALL') into roomTypeId from DUAL;
+add_rooms_to_hotel(hotelId,roomTypeId,5);
+--Find Hotels in Annapolis, MD--
+select find_hotel('Annapolis, MD') into hotelId from Dual;
+--Display Information for Hotel H0--
+hotel_info('H0');
+--Display Information for Hotel H55--
+hotel_info('H55');
+--Show available rooms by type--
+show_available_rooms('Annapolis, MD','MEDIUM HALL');
+--Mrs. Brown makes a reservation at hotel H2 for a wedding for June 7. 100 people are attending.
+new_event_reservation(to_date('06-07-2019','mm-dd-yyyy'), to_date('06-10-2019', 'mm-dd-yyyy'), 'Mrs. Brown', '111-111-1111','new york', 'mrsbrown@email.com', 'Wedding', 'Wedding', 100, 'H2');
+new_event_reservation(to_date('07-09-2019','mm-dd-yyyy'),to_date('07-09-2019','mm-dd-yyyy'),'Mr. Zero','311-113-3311','this city', 'mrzero@email.com', 'Birthday','Birthday',10,'H0');
+new_event_reservation(to_date('08-09-2019','mm-dd-yyyy'),to_date('08-09-2019','mm-dd-yyyy'),'Mr. Zero','311-113-3311','this city', 'mrzero@email.com', 'Birthday','Birthday',50,'H1');
+new_event_reservation(to_date('10-10-2019','mm-dd-yyyy'), to_date('10-13-2019', 'mm-dd-yyyy'), 'Mrs. Brown', '111-111-1111','new york', 'mrsbrown@email.com', 'Conference', 'Conference', 1000, 'H3');
+new_event_reservation(to_date('11-01-2019','mm-dd-yyyy'), to_date('11-01-2019', 'mm-dd-yyyy'), 'Mr. Cyber', '444-444-4444','new york', 'mrcyber@email.com', 'Hackathon', 'Hackathon', 100, 'H2');
+--Events Reserved By Mr. Zero--
+Proc_Find_EventReservation('Mr. Zero', null, null);
+--Events Reserved By Mr. Zero--
+Proc_Find_EventReservation('Mrs. Brown', null, null);
+--Cancel event by Mr. Zero at H0--
+CancelAnEvent(null,'H0','Mr. Zero');
+--Events Reserved By Mr. Zero--
+Proc_Find_EventReservation('Mr. Zero', null, null);
+-- Show Cancellations--
+show_cancellation();
+--Produce total monthly income report--
+montly_income_report();
+--Add breakfast for all attendees of the Conference--
+Add_Event_Service('Conference','BREAKFAST',1000);
+--Reservation Services Report for Conference--
+RESERVATION_SERVICES_REPORT('Conference');
+--Add DJ for all Birthdays--
+Add_Event_Service('Birthday','DJ',0);
+--Add PopBand for the Wedding--
+Add_Event_Service('Wedding','POP BAND',0);
+--Specific Service Report for DJ--
+SPECIFIC_SERVICE_REPORT('DJ');
+--Show Services Income Report--
+SERVICES_INCOME_REPORT('Fairbanks');
+--Event Invoice for Mrs. Brown--
+event_invoice('Mrs. Brown');
+--Event Invoice for Mr. Zero--
+event_invoice('Mr. Zero');
+--Income by State Report for AK--
+INCOME_BY_STATE_REPORT('AK');
+--Income by State Report for MD--
+INCOME_BY_STATE_REPORT('MD');
+--Change room type of hackathon to a large room
+event_room_type('Hackathon', 'LARGE HALL');
+--Report hotels and event rooms in MD
+eventroom_bystate('MD');
+--Show available rooms by type
+show_available_rooms('H0', 'SMALL HALL');
+--Show available halls at each hotel
+showHallsInHotels();
+--Change event Date of the Hackathon from Nov 1, to Dec 20
+changeEventDate('Hackathon',to_date('12-20-2019','mm-dd-yyyy'),to_date('12-20-2019','mm-dd-yyyy'));
+--montly income report
+montly_income_report();
+end;
+/

@@ -1,0 +1,1331 @@
+set serveroutput on;
+Drop table invoices;
+Drop table hotel_room ;
+Drop table reservation ;
+Drop table event_service ;
+Drop table event ;
+Drop table event_status ;
+Drop table room_type ;
+Drop table service_type ;
+Drop table hotel ;
+Drop table customer;
+
+
+CREATE TABLE CUSTOMER(
+CUSTOMER_ID INT NOT NULL,
+CUSTOMER_NAME VARCHAR(100),
+CUSTOMER_PHONE VARCHAR(15),
+CUSTOMER_ADDRESS VARCHAR(200),
+CUSTOMER_EMAIL VARCHAR(50),
+PRIMARY KEY (CUSTOMER_ID));
+
+Drop sequence customerid;
+CREATE SEQUENCE CUSTOMERID
+  MINVALUE 100
+  START WITH 101
+  INCREMENT BY 1
+  CACHE 20;
+  
+CREATE TABLE HOTEL(
+HOTEL_ID INT NOT NULL,
+HOTEL_NAME VARCHAR(100),
+HOTEL_PHONE VARCHAR(15),
+HOTEL_ADDRESS VARCHAR(200),
+HOTEL_STATE VARCHAR(2),
+HOTEL_EMAIL VARCHAR(50),
+PRIMARY KEY (HOTEL_ID));
+
+Drop SEQUENCE HOTELID;
+CREATE SEQUENCE HOTELID
+  MINVALUE 200
+  START WITH 201
+  INCREMENT BY 1
+  CACHE 20;
+
+CREATE TABLE SERVICE_TYPE(
+SERVICE_ID INT NOT NULL,
+SERVICE_NAME VARCHAR(100),
+SERVICE_AMOUNT NUMBER,
+SERVICE_CHARGETYPE VARCHAR(20),
+PRIMARY KEY (SERVICE_ID));
+
+Drop sequence serviceid;
+CREATE SEQUENCE SERVICEID
+MINVALUE 300
+START WITH 301
+INCREMENT BY 1
+CACHE 20;
+INSERT INTO SERVICE_TYPE (SERVICE_ID, SERVICE_NAME, SERVICE_AMOUNT, SERVICE_CHARGETYPE) VALUES (SERVICEID.NEXTVAL, 'BREAKFAST', 10, 'PERSON');
+INSERT INTO SERVICE_TYPE (SERVICE_ID, SERVICE_NAME, SERVICE_AMOUNT, SERVICE_CHARGETYPE) VALUES (SERVICEID.NEXTVAL, 'LUNCH', 20, 'PERSON');
+INSERT INTO SERVICE_TYPE (SERVICE_ID, SERVICE_NAME, SERVICE_AMOUNT, SERVICE_CHARGETYPE) VALUES (SERVICEID.NEXTVAL, 'DJ', 500, 'EVENT');
+INSERT INTO SERVICE_TYPE (SERVICE_ID, SERVICE_NAME, SERVICE_AMOUNT, SERVICE_CHARGETYPE) VALUES (SERVICEID.NEXTVAL, 'SINGER', 2000, 'EVENT');
+INSERT INTO SERVICE_TYPE (SERVICE_ID, SERVICE_NAME, SERVICE_AMOUNT, SERVICE_CHARGETYPE) VALUES (SERVICEID.NEXTVAL, 'POP BAND', 10000, 'EVENT');
+
+CREATE TABLE ROOM_TYPE(
+ROOM_ID INT NOT NULL,
+ROOM_NAME VARCHAR(50),
+ROOM_CAPACITY INT,
+ROOM_PRICE NUMBER,
+PRIMARY KEY(ROOM_ID));
+
+Drop sequence roomid;
+CREATE SEQUENCE ROOMID
+MINVALUE 400
+START WITH 401
+INCREMENT BY 1
+CACHE 20;
+INSERT INTO ROOM_TYPE (ROOM_ID, ROOM_NAME, ROOM_CAPACITY, ROOM_PRICE) VALUES (ROOMID.NEXTVAL,'SMALL HALL', 100, 500);
+INSERT INTO ROOM_TYPE (ROOM_ID, ROOM_NAME, ROOM_CAPACITY, ROOM_PRICE) VALUES (ROOMID.NEXTVAL,'MEDIUM HALL', 250, 1000);
+INSERT INTO ROOM_TYPE (ROOM_ID, ROOM_NAME, ROOM_CAPACITY, ROOM_PRICE) VALUES (ROOMID.NEXTVAL,'LARGE HALL', 500, 2000);
+
+
+CREATE TABLE EVENT_STATUS(
+EVENT_STATUSID INT NOT NULL,
+EVENT_STATUS_DESCRIPTION VARCHAR(20),
+PRIMARY KEY (EVENT_STATUSID));
+
+Drop sequence eventstatusid;
+CREATE SEQUENCE EVENTSTATUSID
+MINVALUE 800
+START WITH 801
+INCREMENT BY 1
+CACHE 20;
+INSERT INTO EVENT_STATUS (EVENT_STATUSID, EVENT_STATUS_DESCRIPTION) VALUES (EVENTSTATUSID.NEXTVAL, 'CANCELLED');
+INSERT INTO EVENT_STATUS (EVENT_STATUSID, EVENT_STATUS_DESCRIPTION) VALUES (EVENTSTATUSID.NEXTVAL, 'OPEN');
+
+CREATE TABLE EVENT(
+EVENT_ID INT NOT NULL,
+START_DATE DATE,
+END_DATE DATE,
+EVENT_NAME VARCHAR(50),
+EVENT_TYPE VARCHAR(100),
+NUMBER_OF_PEOPLE INT,
+EVENT_STATUSID INT,
+HOTEL_ID INT,
+ROOM_ID INT,
+PRIMARY KEY (EVENT_ID),
+FOREIGN KEY (HOTEL_ID) REFERENCES HOTEL(HOTEL_ID),
+FOREIGN KEY (ROOM_ID) REFERENCES ROOM_TYPE(ROOM_ID),
+FOREIGN KEY (EVENT_STATUSID) REFERENCES EVENT_STATUS(EVENT_STATUSID));
+
+Drop sequence eventid;
+CREATE SEQUENCE EVENTID
+MINVALUE 500
+START WITH 501
+INCREMENT BY 1
+CACHE 20;
+
+
+CREATE TABLE EVENT_SERVICE(
+EVENT_SERVICE_ID INT NOT NULL,
+EVENT_ID INT,
+SERVICE_ID INT,
+EVENT_SERVICE_AMOUNT NUMBER,
+PRIMARY KEY (EVENT_SERVICE_ID),
+FOREIGN KEY (EVENT_ID) REFERENCES EVENT(EVENT_ID),
+FOREIGN KEY (SERVICE_ID) REFERENCES SERVICE_TYPE(SERVICE_ID));
+
+Drop sequence eventserviceid;
+CREATE SEQUENCE EVENTSERVICEID
+MINVALUE 1000
+START WITH 1001
+INCREMENT BY 1
+CACHE 20;
+
+
+CREATE TABLE RESERVATION(
+RESERVATION_ID INT NOT NULL,
+RESERVATION_DATE DATE,
+CANCELLATION_DATE DATE,
+CUSTOMER_ID INT,
+ROOM_ID INT,
+EVENT_ID INT,
+HOTEL_ID INT,
+BOOKING_REASON VARCHAR(250),
+CANCELLATION_STATUS VARCHAR(250),
+PRIMARY KEY (RESERVATION_ID),
+FOREIGN KEY (CUSTOMER_ID) REFERENCES CUSTOMER(CUSTOMER_ID),
+FOREIGN KEY (EVENT_ID) REFERENCES EVENT(EVENT_ID),
+FOREIGN KEY (ROOM_ID) REFERENCES ROOM_TYPE(ROOM_ID),
+FOREIGN KEY (HOTEL_ID) REFERENCES HOTEL(HOTEL_ID));
+
+
+
+Drop sequence reservationid;
+CREATE SEQUENCE RESERVATIONID
+MINVALUE 600
+START WITH 601
+INCREMENT BY 1
+CACHE 20;
+
+CREATE TABLE HOTEL_ROOM(
+HOTEL_ROOM_ID INT NOT NULL,
+HOTEL_ID INT,
+ROOM_ID INT,
+TOTAL_ROOMS_OF_TYPE INT,
+AVAILABLE_ROOMS_OF_TYPE INT,
+PRIMARY KEY (HOTEL_ROOM_ID),
+FOREIGN KEY (HOTEL_ID) REFERENCES HOTEL(HOTEL_ID),
+FOREIGN KEY (ROOM_ID) REFERENCES ROOM_TYPE(ROOM_ID));
+
+Drop sequence hotelroomid;
+CREATE SEQUENCE HOTELROOMID
+MINVALUE 900
+START WITH 901
+INCREMENT BY 1
+CACHE 20;
+
+
+CREATE TABLE INVOICES(
+INVOICE_ID INT NOT NULL,
+INVOICE_DATE DATE,
+TOTAL_AMOUNT NUMBER,
+RESERVATION_ID INT,
+CUSTOMER_ID INT,
+PAID INT,
+PRIMARY KEY(INVOICE_ID),
+FOREIGN KEY(CUSTOMER_ID) REFERENCES CUSTOMER(CUSTOMER_ID),
+FOREIGN KEY(RESERVATION_ID) REFERENCES RESERVATION(RESERVATION_ID));
+
+Drop sequence invoiceid;
+CREATE SEQUENCE INVOICEID
+MINVALUE 700
+START WITH 701
+INCREMENT BY 1
+CACHE 20;
+
+
+--MEMBER 1
+
+
+--FEATURE 1 - CREATED A PROCEDURE TO CREATE A HOTEL
+
+--PROCEDURE FOR CREATION OF HOTEL
+create or replace procedure create_hotel (H_NAME in varchar, H_PHONE in varchar, H_ADDRESS in varchar, H_STATE in varchar, H_EMAIL in varchar) IS
+Begin
+dbms_output.put_line ('entering into procedure create_hotel');
+dbms_output.put_line ('check that you have entered values in this sequence - name, phone, address, state, email');
+-- INSERTING A NEW ROW INTO HOTEL TABLE
+insert into hotel values (HOTELID.NEXTVAL, h_name, h_phone, h_address, h_state, h_email);
+end;
+/
+
+--FEATURE 2 - CREATED A FUNCTION TO FIND A HOTEL
+
+Create or replace function find_hotel (h_address in varchar) return int IS
+h_id hotel.hotel_id%type;
+-- finding Hotel_ID given a Hotel Address as input using explicit cursor
+Cursor c1_find_hotel is Select hotel_id into h_id from hotel where hotel_address = h_address or hotel_name = h_address;
+BEGIN
+dbms_output.put_line ('entering into function find_hotel');
+Open c1_find_hotel;
+Loop
+	fetch c1_find_hotel into h_id;
+-- Handling exceptions	
+	if c1_find_hotel%notfound then
+	dbms_output.put_line ('No such hotel found');
+	return null;
+        exit;
+	else
+	dbms_output.put_line ('Hotel ID is: ' || h_id);	
+        end if;
+        return h_id; 
+End loop;
+Close c1_find_hotel;
+END;
+/
+
+--FEATURE 3 - Created a procedure for displaying all information about that hotel for a given hotel ID
+
+Create or replace PROCEDURE hotel_info (h_addr in varchar) IS
+h_info hotel%rowtype;
+h_id int;
+-- fetching all information about a Hotel given its hotel_id as input
+Cursor c1_hotel_info is Select * from hotel where hotel_id = h_id;
+BEGIN
+dbms_output.put_line ('entering into procedure hotel_info');
+select find_hotel (h_addr) into h_id from DUAL;
+Open c1_hotel_info;
+Loop
+	fetch c1_hotel_info into h_info;
+	if c1_hotel_info%notfound then
+dbms_output.put_line ('No such hotel found');
+exit;
+else
+-- printing details about the HOTEL
+dbms_output.put_line('Hotel name is: ' || h_info.HOTEL_NAME);
+dbms_output.put_line('Hotel phone is: ' || h_info.HOTEL_PHONE);
+dbms_output.put_line('Hotel address is: ' || h_info.HOTEL_ADDRESS);
+dbms_output.put_line('Hotel state is: ' || h_info.HOTEL_STATE);
+dbms_output.put_line('Hotel email is: ' || h_info.HOTEL_EMAIL);
+end if;
+End loop;
+Close c1_hotel_info;
+END;
+/
+
+--EXTRA Function, which is required for features 4, 5 & 6
+
+--creating function to find a Room_id 
+Create or replace function find_room_id (r_name in varchar) return int IS
+r_id room_type.room_id%type;
+-- finding Hotel_ID given a Hotel Address as input using explicit cursor
+Cursor c1_find_room_id is Select room_id into r_id from room_type where room_name = r_name;
+BEGIN
+dbms_output.put_line ('entering into function find room id');
+Open c1_find_room_id;
+Loop
+	fetch c1_find_room_id into r_id;
+-- Handling exceptions	
+	if c1_find_room_id%notfound then
+	dbms_output.put_line ('No such Room found');
+	return null;
+        exit;
+	else
+	dbms_output.put_line ('Room ID is: ' || r_id);
+	dbms_output.put_line ('Room Added is: ' || r_name);
+        end if;
+        return r_id; 
+End loop;
+Close c1_find_room_id;
+END;
+/
+
+create or replace procedure showHallsInHotels
+is
+h_id int;
+h_name varchar(20);
+rName varchar(20);
+rId int;
+totalRooms int;
+availableRooms int;
+cursor c1 is select hotel_id, hotel_name from hotel;
+cursor c2 is select room_name, room_id from room_type;
+cursor c3 is select total_rooms_of_type, available_rooms_of_type from hotel_room where hotel_id = h_id and room_id = rId;
+begin 
+open c1;
+loop
+fetch c1 into h_id, h_name;
+open c2;
+loop
+fetch c2 into rName,rId;
+open c3;
+loop
+fetch c3 into totalRooms,availableRooms;
+dbms_output.put_line('Room Type:'||rName||' Total rooms in '||h_name||' : '||totalRooms||' Available rooms in '||h_name||': '||availableRooms);
+exit when c3%notfound;
+end loop;
+close c3;
+exit when c2%notfound;
+end loop;
+close c2;
+exit when c1%notfound;
+end loop;
+close c1;
+
+end;
+/
+create or replace procedure add_rooms_to_hotel (hotelId in int, roomTypeId in int, roomsToAdd in int) is
+totalroomsoftype int := 0;
+availableroomsoftype int := 0;
+begin
+dbms_output.put_line ('entering into procedure add rooms to hotel');
+select total_rooms_of_type into totalroomsoftype from hotel_room where hotel_id = hotelId;
+if totalroomsoftype is null or totalroomsoftype = 0 then
+    totalroomsoftype := 0;
+else
+select available_rooms_of_type into availableroomsoftype from hotel_room where hotel_id = hotelId;
+    if availableroomsoftype is null or availableroomsoftype = 0 then
+        availableroomsoftype := 0;
+    end if;
+end if;
+update hotel_room set total_rooms_of_type = totalroomsoftype+roomsToAdd, available_rooms_of_type = availableroomsoftype+roomsToAdd;
+exception
+when no_data_found then
+insert into hotel_room values(hotelroomid.nextval, hotelId, roomTypeId, totalroomsoftype+roomsToAdd, availableroomsoftype+roomsToAdd);
+end;
+/
+
+--Feature 4 - Added a room for a given hotel ID, forr a specific event to that hotel. 
+
+create or replace procedure add_event_room (h_addr in varchar, r_name in varchar, e_name in varchar) is
+h_id int;
+r_id int;
+begin
+dbms_output.put_line ('entering into procedure add event room');
+h_id := find_hotel (h_addr);
+r_id := find_room_id (r_name);
+insert into event (select eventid.NEXTVAL, event.START_DATE, event.END_DATE, event.EVENT_NAME, event.EVENT_TYPE, event.NUMBER_OF_PEOPLE, event.EVENT_STATUSID, event.HOTEL_ID, r_id from event where hotel_id = h_id AND event_name = e_name and ROWNUM = 1);
+
+insert into reservation (select RESERVATIONID.nextval, reservation.RESERVATION_DATE, reservation.CANCELLATION_DATE, reservation.CUSTOMER_ID, r_id,reservation.EVENT_ID, h_id, 'add extra room', reservation.CANCELLATION_STATUS from reservation where hotel_id = h_id AND ROWNUM = 1);
+
+update HOTEL_ROOM set AVAILABLE_ROOMS_OF_TYPE = AVAILABLE_ROOMS_OF_TYPE - 1 where room_id = r_id and hotel_id = h_id;
+dbms_output.put_line('A new room:  ' || r_name || ' has been added to the event ' || e_name || ' in hotel with address as ' || h_addr);
+
+exception
+when no_data_found then
+dbms_output.put_line ('No such hotel found');
+end;
+/
+
+--Feature 5 - Created a procedure to report Hotels and Event Rooms In State while given a state, display event room information of all hotels in that particular state and incuding the total capacity per event room type per hotel.
+
+Create or replace procedure eventroom_bystate (h_state in varchar) is
+ev_name event.event_name%type;
+ev_type event.event_type%type;
+t_room number;
+av_room number;
+n_people number;
+begin
+dbms_output.put_line ('entering into procedure event room by state');
+select event_name, event_type, TOTAL_ROOMS_OF_TYPE, AVAILABLE_ROOMS_OF_TYPE, number_of_people into ev_name, ev_type, t_room, av_room, n_people from event,hotel_room, hotel where hotel.hotel_id=event.hotel_id and hotel.hotel_id=hotel_room.hotel_id and hotel_state = h_state and rownum=1;
+
+dbms_output.put_line ('The name of event is: ' || ev_name);
+dbms_output.put_line ('The type of event is: ' || ev_type);
+dbms_output.put_line ('Total rooms are: ' || t_room);
+dbms_output.put_line ('Available rooms are: ' || av_room);
+dbms_output.put_line ('Total people for this event are: ' || n_people);
+
+exception
+when no_data_found then
+dbms_output.put_line ('No hotel in this state, please enter a different state');
+end;
+/
+
+--Feature 6 - shows the available rooms by hotel address
+create or replace procedure show_available_rooms (h_addr in varchar,roomName in varchar) is
+t_room hotel_room.TOTAL_ROOMS_OF_TYPE%type;
+a_room hotel_room.AVAILABLE_ROOMS_OF_TYPE%type;
+r_id int;
+h_id int;
+rName varchar(25);
+begin
+h_id := find_hotel (h_addr);
+select rt.room_id, rt.room_name, hr.TOTAL_ROOMS_OF_TYPE, hr.AVAILABLE_ROOMS_OF_TYPE into r_id, rName, t_room, a_room from hotel_room hr, room_type rt where hotel_id = h_id and hr.room_id = rt.room_id
+and rt.room_name = roomName;
+dbms_output.put_line('Total Rooms are: ' || t_room);
+dbms_output.put_line('Available rooms are: ' || a_room);
+exception
+when no_data_found then
+dbms_output.put_line ('No such hotel found');
+end;
+/*
+create or replace procedure show_available_rooms (h_addr in varchar) is
+t_room hotel_room.TOTAL_ROOMS_OF_TYPE%type;
+a_room hotel_room.AVAILABLE_ROOMS_OF_TYPE%type;
+r_id int;
+h_id int;
+begin
+dbms_output.put_line ('entering into procedure show available rooms');
+h_id := find_hotel (h_addr);
+select room_id, TOTAL_ROOMS_OF_TYPE, AVAILABLE_ROOMS_OF_TYPE into r_id, t_room, a_room from hotel_room where hotel_id = h_id;
+dbms_output.put_line('Total Rooms are: ' || t_room);
+dbms_output.put_line('Available rooms are: ' || a_room);
+exception
+when no_data_found then
+dbms_output.put_line ('No such hotel found');
+end;
+*/
+/
+
+
+--MEMBER 2
+
+
+--Feature 7 - Created a procedure to make an event reservation for given inputs Hotel ID, guest’s name, start date, end date, event type, date of reservation, number of people attending, etc. Output: event reservation ID (this is called confirmation code in real-life). NOTE: Only one person can make an event reservation. However, the same person can make multiple reservations. Event types: Birthday, Wedding, Conference, Workshop, Hackathon, University Admission, etc. Also make sure that the reserved hall has capacity that can hold the number of people attending. For example, for a conference of 500 people, a customer must reserve 2 medium halls and a large hall for each day of the conference, usually 3 consecutive days.
+
+
+--To register for an event and give out the confirmation ID 
+
+create or replace PROCEDURE New_Event_Reservation(checkin in date,
+checkout in date, guest_name in varchar2, guest_phone in varchar2, guest_address in varchar2, guest_email in varchar2, event1_name in varchar2, event1_type in varchar, number_of_attendee in number, hot_addr in varchar)
+is
+event1_id event.event_id%type;
+eventstatus_ID event.event_statusid%type;
+hotel4_id int;
+cId int := 0;
+ 
+CURSOR c1 is select room_type.room_id, room_price from room_type, hotel_room where 
+room_capacity >= number_of_attendee and available_rooms_of_type > 0 
+and hotel_room.room_id= room_type.room_id And hotel_room.hotel_id = (select find_hotel(hot_addr) from Dual) AND ROWNUM = 1;
+CURSOR c2 is select customer_id from Customer where customer_name = guest_name and customer_email = guest_email;
+ 
+r_num hotel_room.room_id%type; --column type variables declared to store the values
+total_amount number := 0;
+discounted_price number := 0;
+days_remaining_for_event int := 0;
+roomPrice number := 0;
+ 
+BEGIN
+-- (Update on Hotel's Available Room for the specific type)
+dbms_output.Put_line('Entering procedure New_Event_Reservation');
+hotel4_id:= find_hotel(hot_addr);
+Open c1;
+Loop
+Fetch c1 into r_num, roomPrice;
+exit when c1%notfound or c1%rowcount > 1;
+update hotel_room set available_rooms_of_type= available_rooms_of_type -1 where room_id = r_num;
+End loop;
+close c1;
+ 
+select event_statusid into eventstatus_ID from event_status where EVENT_STATUS_DESCRIPTION = 'OPEN';
+Open c2;
+Loop
+Fetch c2 into cId;
+exit when c2%notfound;
+end loop;
+close c2;
+ 
+if cId = 0 then
+  INSERT INTO Customer (customer_id,customer_name, customer_phone, customer_address, customer_email) Values (CustomerId.nextval, guest_name, guest_phone, guest_address, guest_email);
+end if;
+ 
+INSERT INTO Event (event_id, start_date, end_date, event_name, event_type, number_of_people, event_statusid,hotel_id,room_id)
+VALUES(eventId.nextval, checkin,
+checkout, event1_name, event1_type, number_of_attendee, eventstatus_ID,hotel4_id,r_num);
+if eventId.currval is not null then
+dbms_output.Put_line('Event is registered successfully with Event ID: '
+|| eventId.currval || '.Thank you!');
+select checkin-trunc(sysdate) into days_remaining_for_event from dual;
+if days_remaining_for_event >= 60 then
+discounted_price := total_amount - (total_amount/10);
+else
+discounted_price := total_amount;
+end if;
+INSERT INTO RESERVATION(reservation_id, reservation_date, cancellation_date, customer_id, room_id, event_id, hotel_id, booking_reason, cancellation_status) VALUES (ReservationId.Nextval, trunc(sysdate), null, customerid.currval,r_num, eventId.currval, hotel4_id, event1_name, '');
+INSERT INTO INVOICES(invoice_id, invoice_date, total_amount, reservation_id, customer_id) VALUES (invoiceid.nextval, trunc(sysdate), discounted_price, ReservationId.CurrVal, CustomerId.Currval);
+else
+dbms_output.Put_line('Event could not be registered. Please try again later.' );
+END if;
+exception
+when no_data_found then
+dbms_output.put_line('Provided Guest name does not exist');
+when  others then
+dbms_output.put_line(sqlerrm);
+END;
+/
+
+--Feature 8 - created a procedure to find an event reservation for the given input is a person’s name and date, hotel ID. Output is event reservation ID
+
+
+--Procedure to find the event reservation ID by input of name, date and hotel ID 
+
+Create or replace procedure Proc_Find_EventReservation
+(Cust_Name IN VARCHAR, Checkin IN DATE, hot_addr in varchar)
+AS
+eID INT;
+Hotel4_id INT := 0;
+eventName varchar2(250);
+CURSOR EventResForCustomer is select event_name from event inner join reservation on event.event_id = reservation.event_id
+inner join customer on customer.customer_id = reservation.customer_id 
+inner join event_status on event.event_statusid = event_status.event_statusid
+where customer.customer_name = cust_name and event_status.event_status_description = 'OPEN';
+BEGIN 
+dbms_output.put_line ('entering into procedure find event reservation');
+if(hot_addr) is not null then 
+ Hotel4_id := find_hotel(hot_addr);
+end if;
+if checkin is not null and Hotel4_id > 0 then
+SELECT EVENT.event_id INTO eID FROM  EVENT, RESERVATION, CUSTOMER
+WHERE START_DATE = Checkin
+AND reservation.hotel_id = hotel4_id 
+AND EVENT.EVENT_ID = reservation.event_id 
+AND CUSTOMER.CUSTOMER_ID = reservation.customer_id
+AND CUSTOMER_NAME = Cust_Name; 
+DBMS_OUTPUT.put_line('The event ID is: ' ||eID);
+else
+open EventResForCustomer;
+dbms_output.put_line('Events for Customer '||cust_name||':');
+loop
+  fetch EventResForCustomer into eventName;
+  exit when EventResForCustomer%notfound;
+  dbms_output.put_line(eventName);
+end loop;
+close EventResForCustomer;
+end if;
+exception
+when no_data_found then
+dbms_output.put_line('Unsuccessful attempt');
+when  others then
+dbms_output.put_line(sqlerrm);
+END;
+/
+
+-- Feature 9 -Cancel an event: Input the event reservationID and mark the reservation as cancelled (do NOT delete it)
+
+--Function to get reservation Id from reservation date
+create or replace function get_reserv_id 
+(
+reserv2_date in date)
+return int
+is
+reserv2_id reservation.reservation_id%type;
+begin
+dbms_output.put_line ('entering into function get reservation id');
+SELECT reservation_id into reserv2_id
+                FROM reservation
+                WHERE reservation_date = reserv2_date;
+   return reserv2_id; 
+   end;
+/
+--Procedure to cancel an event using reservation date 
+Create or replace procedure CancelAnEvent (reserv2_date in date, hot_addr in varchar2, cust_name in varchar2) 
+is 
+r_id reservation.reservation_id%type;
+eventToCancel int;
+eventStatusIdForCancelled int;
+cursor c1 is select reservation_id, event_id 
+from reservation inner join customer on reservation.customer_id = customer.customer_id
+inner join hotel on reservation.hotel_id = hotel.hotel_id
+where customer_name = cust_name and hotel.hotel_id = find_hotel(hot_addr);
+reserv_id reservation.reservation_id%type;
+begin
+dbms_output.put_line ('entering into procedure cancel event');
+if reserv2_date is not null then
+r_id:= get_reserv_id(reserv2_date);
+else
+open c1;
+loop
+fetch c1 into r_id, eventToCancel;
+exit when c1%notfound;
+end loop;
+close c1;
+end if;
+select event_statusId into eventStatusIdForCancelled from event_status where event_status_description = 'CANCELLED';
+update reservation set cancellation_date = sysdate , cancellation_status ='Cancelled' where reservation_id = r_id;
+update event set event_statusId = eventStatusIdForCancelled where event_id = eventToCancel;
+update invoices set total_amount = 0 where reservation_id = r_id;
+dbms_output.put_line('The reservation ID '|| r_id || ' has successfully cancelled!');
+exception 
+when no_data_found then 
+dbms_output.put_line('Unsuccessful attempt!!');
+when  others then
+dbms_output.put_line(sqlerrm);
+END;
+/
+
+--Feature 10 - Procedure to show all cancellations 
+create or replace procedure show_cancellation
+is 
+r_id reservation.reservation_id%type;
+h_name hotel.hotel_name%type;
+h_address hotel.hotel_address%type;
+e_type event.event_type%type;
+r_name room_type.room_name%type;
+r_date reservation.reservation_date%type;
+c_date reservation.cancellation_date%type;
+
+cursor c1 is select reservation_id, hotel_name, hotel_address, event_type, 
+room_name, reservation_date, cancellation_date from reservation r, hotel h, event e, room_type rt
+where cancellation_status = 'Cancelled' and r.hotel_id=h.hotel_id and e.event_id=r.event_id and rt.room_id=r.room_id;
+begin
+dbms_output.put_line ('entering into procedure show all cancellation');
+open c1;
+loop
+fetch c1 into r_id, h_name, h_address, e_type, r_name,r_date, c_date;
+exit when c1%notfound;
+dbms_output.put_line('canceled events are ' ||' Reservation ID: ' ||r_id|| ' Hotel name: '|| h_name|| ' Hotel Address: '|| h_address|| ' Event_type: '||
+e_type||' Room Type: '|| r_name||' Reservation Date: ' || r_date||' Cancellation Date: '|| c_date);
+end loop;
+close c1;
+exception
+when  others then
+dbms_output.put_line(sqlerrm);
+END;
+/
+
+--Feature 11 -  Created a procedure to change an event Date for given input the event reservation ID and change event start and end date, if there is availability in the same or larger room type for the new date interval
+
+
+--Function to get event id from Event Name 
+
+create or replace function get_event_id
+( 
+event2_name in Varchar)
+return int
+is 
+event2_id event.event_id%type;
+begin
+select event_id into event2_id from event where event_name= event2_name;
+return event2_id;
+end;
+/
+
+--Function to check the room availability 
+create or replace function RoomCheck  
+(hot_addr in Varchar,
+event2_name in Varchar,
+checkin IN DATE,
+checkout IN DATE
+)
+return number
+is
+resnum event.event_ID%type;
+begin
+dbms_output.put_line ('entering into procedure check room availability');
+select count(*) into resnum from event, hotel where start_date = checkin and hotel.hotel_id= event.hotel_id and
+end_date = checkout and event_name = event2_name and hotel_address=hot_addr;
+return resnum; end;
+/
+
+--Procedure to change an event date 
+
+
+create or replace procedure changeEventDate(eventName in varchar, newStartDate in date, newEndDate in date)
+is
+days_remaining_for_event int;
+discounted_price number := 0;
+totalAmount number := 0;
+oldStartDate date;
+begin
+dbms_output.put_line('Entering proc changeEventDate');
+select start_date into oldStartDate from event where event_name = eventName;
+update event set start_date = newStartDate where event_name = eventName;
+update event set end_date = newEndDate where event_name = eventName;
+select newStartDate-trunc(sysdate) into days_remaining_for_event from dual;
+select total_amount into totalAmount from Invoices where 
+reservation_id = (select reservation_id from reservation, event where reservation.event_id = event.event_id 
+and event.event_name = eventName);
+if days_remaining_for_event >= 60 then
+discounted_price := totalAmount - (totalAmount/10);
+else
+discounted_price := totalAmount;
+end if;
+if discounted_price > 0 then
+update invoices set total_amount = discounted_price where 
+reservation_id = (select reservation_id from reservation, event 
+where reservation.event_id = event.event_id and event.event_name = eventName);
+end if;
+dbms_output.put_line('Changed Date for '||eventName||' from '||to_char(oldStartDate,'mm-dd-yyyy')||' to '||to_char(newStartDate,'mm-dd-yyyy'));
+exception 
+when no_data_found then 
+dbms_output.put_line('Unsuccessful attempt!!');
+when others then
+dbms_output.put_line(sqlerrm);
+end;
+/
+
+
+--MEMBER 3
+
+--Feature 12
+
+create or replace procedure event_room_type(eventName in varchar, newRoom in varchar) 
+is
+
+currentRoom varchar(20);
+changedRoom varchar(20);
+new_available_rooms int;
+old_available_rooms int;
+availableRooms int;
+roomID int;
+roomPrice number;
+reserv_id int;
+
+cursor c1 is select available_rooms_of_type from hotel_room hr, room_type rt where hr.room_id = rt.room_id
+and rt.room_name = newRoom;
+
+begin
+
+dbms_output.put_line('Entering procedure to change room type');
+
+select reservation_id into reserv_id from reservation, event e where reservation.event_id = e.event_id and e.event_name = eventName;
+
+select rt.room_name, rt.room_id, rt.room_price into currentRoom, roomID, roomPrice from reservation r, event e, room_type rt 
+where r.event_id = e.event_id and e.room_id = rt.room_id and r.reservation_id = reserv_id;
+DBMS_output.put_line('Current reserved room type is: '||currentRoom);
+
+
+open c1;
+loop
+fetch c1 into availableRooms;
+exit when c1%notfound;
+end loop;
+close c1;
+
+if(newRoom = 'SMALL HALL') then
+update event
+set room_id = 401
+where event_name = eventName;
+update hotel_room set available_rooms_of_type = available_rooms_of_type-1 where room_id = 401;
+update hotel_room set available_rooms_of_type = available_rooms_of_type-1 where room_id = (select room_id from room_type where room_name = currentRoom);
+update invoices set total_amount = total_amount - roomPrice + (select room_price from room_type where room_id = 401) where reservation_id = reserv_id;
+update reservation set room_id = 401 where event_id = (select event_id from event where event_name = eventName);
+
+DBMS_output.put_line('The updated room is: '|| newRoom);
+
+
+else 
+if newRoom = 'MEDIUM HALL' then
+update event
+set room_id = 402
+where event_name = eventName;
+update hotel_room set available_rooms_of_type = available_rooms_of_type-1 where room_id = 402;
+update hotel_room set available_rooms_of_type = available_rooms_of_type-1 where room_id = (select room_id from room_type where room_name = currentRoom);
+update invoices set total_amount = total_amount - roomPrice + (select room_price from room_type where room_id = 402) where reservation_id = reserv_id;
+update reservation set room_id = 402 where event_id = (select event_id from event where event_name = eventName);
+
+
+else
+if newRoom = 'LARGE HALL' then
+update event
+set room_id = 403
+where event_name = eventName;
+update hotel_room set available_rooms_of_type = available_rooms_of_type-1 where room_id = 403;
+update hotel_room set available_rooms_of_type = available_rooms_of_type-1 where room_id = (select room_id from room_type where room_name = currentRoom);
+update invoices set total_amount = total_amount - roomPrice + (select room_price from room_type where room_id = 403) where reservation_id = reserv_id;
+update reservation set room_id = 403 where event_id = (select event_id from event where event_name = eventName);
+
+else
+DBMS_output.put_line('You have reserved the same room type, no need to change');
+
+end if;
+end if;
+end if;
+
+exception
+when no_data_found then
+DBMS_output.put_line('No data found');
+when too_many_rows then
+DBMS_output.put_line('Too much data found');
+
+end;
+
+/
+--Feature 13 - Show specific event: Given an event type (Birthday, Wedding, etc.) display all events of that type in all hotels along with the address of the hotel and the date of the event.
+
+create or replace procedure event_names( 
+     eventnames in varchar)
+--input parameter
+   	is
+--fetching hotel, event
+	cursor c1 is select hotel_name, hotel_address, start_date, end_date
+	from hotel, event 
+	where hotel.hotel_ID=event.hotel_ID and
+	event_type = eventnames;
+	hotelname hotel.hotel_name%type;
+	hoteladd hotel.hotel_address%type;
+	startdate event.start_date%type;
+	enddate event.end_date%type;
+begin
+dbms_output.put_line ('entering into procedure event name');
+	Open c1;
+	loop
+		fetch c1 into hotelname, hoteladd, startdate, enddate;
+		exit when c1 % notfound;
+		dbms_output.put_line(hotelname|| ', '  || hoteladd ||  ', ' || startdate || ',  '   || enddate);
+	end loop;
+	close c1;
+exception 
+	when no_data_found then
+	dbms_output.put_line(' There are no such events occurring currently' );
+end;
+
+/
+--Feature 14 - Show specific event: Given an event type (Birthday, Wedding, etc.) display all events of that type in all hotels along with the address of the hotel and the date of the event.
+
+
+create or replace procedure show_event(cust_name varchar)
+is 
+--fetching customer name, event_type
+	cursor c1 is select customer_name, event_type
+	from customer , reservation , event  
+	where customer.customer_id = reservation.customer_id and event.event_id = reservation.event_id and
+	customer_name=cust_name; --variables to store the output
+	custmr_name customer.customer_name%type;
+	evnt_type event.event_type%type;
+begin
+dbms_output.put_line ('entering into procedure show event');
+	open c1;
+	loop
+		fetch c1 into custmr_name,evnt_type;
+		exit when c1%notfound;
+		dbms_output.put_line('Customer Name: ' || custmr_name || ' and ' || 'Event Type: ' || evnt_type );
+	end loop;
+	close c1;
+exception 
+	when no_data_found then 
+	dbms_output.put_line('No events for the customer');
+end;
+
+/
+--Feature 15 - Calculating the monthly income based on the services and events
+
+create or replace procedure montly_income_report is
+reportMonth varchar(20);
+eventName event.event_Name%type;
+serviceName varchar(50);
+total number;
+print_head number :=0;
+--calcualation total income based on month
+cursor c1 is select to_Char(end_date,'Month') as MONTH, event_name, service_name,sum(case when months>= 2 then ((room_amount)- (room_amount/100)* 10)
+else (room_amount) 
+end) as total_income
+from
+
+--joining two implicit cursors
+((select reservation.reservation_id,hotel.hotel_name,reservation_date, start_date,
+end_date, event_name, room_type.room_name as service_name ,sum(room_type.room_price) as room_amount,
+round(months_between(start_date,reservation_date),0)as months
+from event, room_type, reservation, hotel
+where event.event_id = reservation.event_id and event.hotel_id=hotel.hotel_id and event.room_id=room_type.room_id
+group by reservation_id,reservation_date, start_date,
+end_date, event_name, room_type.room_name, hotel.hotel_name)
+
+union all
+
+ (select reservation_id, hotel_name, reservation_date, start_date,
+end_date, event_name, service_type.service_name, 
+sum(
+case when service_name='Breakfast' or service_name='lunch' 
+then event.number_of_people*service_type.service_amount
+else service_type.service_amount
+end) as service_amount,
+round(months_between(start_date,reservation_date),0)as months
+from event,service_type, hotel, event_service,reservation
+where event.event_id = event_service.event_id
+and event.hotel_id = hotel.hotel_id and service_type.service_id=event_service.service_id and event.event_id = reservation.event_id
+group by reservation_id, hotel_name, reservation_date, start_date,
+end_date, event_name, service_type.service_name))
+
+group by reservation_id,to_Char(end_date,'Month'),event_name,service_name
+order by event_name,service_name;
+
+
+BEGIN
+dbms_output.put_line('Total Monthly Income Report');
+
+open c1;
+loop
+fetch c1 into reportMonth, eventName, serviceName, total;
+exit when c1%notfound;
+if(print_head=0) then
+dbms_output.put_line(LPAD('MONTH | ',15)||LPAD('EVENT TYPE | ',15)||LPAD('SERVICE TYPE/ROOM TYPE | ',15)||LPAD('TOTAL | ',15));
+dbms_output.put_line(LPAD(reportMonth,15)||LPAD(eventName,15)||LPAD(serviceName,15)||LPAD(total,15));
+print_head:=print_head+1;
+else
+dbms_output.put_line(LPAD(reportMonth,15)||LPAD(eventName,15)||LPAD(serviceName,15)||LPAD(total,15));
+print_head:=print_head+1;
+end if;
+end loop;
+close c1;
+exception
+when others then RAISE;
+end;
+
+/
+--Feature 16 - creating an invoice for the event based on room_type and services offered
+
+create or replace procedure event_invoice(cust_name varchar)
+is
+
+cursor c1 is 
+select service_name, event_service_amount from reservation r , event_service es, service_type st where r.event_id = es.event_id and st.service_id = es.service_id and r.customer_id = (select customer_id from customer where customer_name = cust_name);
+
+cursor c2 is 
+select r.room_id , room_price from reservation r , room_type rt  where r.room_id= rt.room_id and r.customer_id = (select customer_id from customer where customer_name = cust_name);
+
+cursor c3 is
+select (e.start_date - r.reservation_date) from event e, reservation r, customer c where r.event_id = e.event_id and r.customer_id = c.customer_id and c.customer_id = (select customer_id from customer where customer_name = cust_name);
+
+serviceName varchar(50);
+serviceAmount number;
+totalroomPrice number;
+totalserviceAmount number;
+totalAmount number;
+customerName varchar(25);
+roomPrice number;
+roomID int;
+eventDuration number;
+discount number;
+discountedPrice number;
+
+begin
+
+DBMS_output.put_line('Customer Name: '|| cust_name);
+
+select sum(room_price) into totalroomPrice from reservation r, room_type rt where r.room_id = rt.room_id and r.customer_id = (select customer_id from customer where customer_name = cust_name);
+
+open c2;
+loop 
+fetch c2 into roomID, roomPrice;
+totalroomPrice := totalRoomPrice + roomPrice;
+exit when c2%notfound;
+dbms_output.put_line('Room Number: ' || roomID ||  '  Room Price :' || roomPrice);
+end loop;
+close c2;
+DBMS_output.put_line(' The list of services and their prices of a given customer');
+
+open c1;
+loop
+fetch c1 into serviceName, serviceAmount;
+exit when c1%notfound;
+dbms_output.put_line('Service Name:  ' || serviceName || '  Service Amount :' || serviceAmount);
+end loop;
+close c1;
+
+
+select  sum(event_service_amount) into totalserviceAmount from reservation r , event_service es, service_type st where r.event_id = es.event_id and st.service_id = es.service_id and r.customer_id = (select customer_id from customer where customer_name = cust_name);
+DBMS_output.put_line(' The service charge: '|| totalserviceAmount);
+
+totalAmount := totalroomPrice + totalserviceAmount;
+
+open c3;
+loop
+fetch c3 into eventDuration;
+exit when c3%notfound;
+if (eventDuration >59)
+then
+discount :=(0.10*totalAmount);
+DBMS_output.put_line(' The discounted price is: '||discount);
+
+discountedPrice := totalAmount - discount;
+DBMS_output.put_line('The total amount for an event including service charge and room price including discount is :'||discountedPrice);
+
+else
+DBMS_output.put_line('The total amount for an event including service charge and room price is :'||totalAmount);
+end if;
+end loop;
+close c3;
+
+exception
+when no_data_found then
+DBMS_output.put_line('The provided guest isnt their in the list');
+end;
+/
+
+--MEMBER 4
+
+CREATE OR REPLACE FUNCTION GET_EVENT_ID(eventName IN varchar)
+RETURN INT
+IS eventId int;
+BEGIN
+dbms_output.put_line ('entering into function get even id'); 
+SELECT event_id into eventId FROM Event where event_name like '%'||eventName||'%' AND ROWNUM = 1;--fetch first 1 rows only;
+RETURN (eventId);
+EXCEPTION
+WHEN NO_DATA_FOUND THEN
+ dbms_output.put_line('No event found for ' || eventName);
+ RETURN NULL;
+WHEN TOO_MANY_ROWS THEN
+ dbms_output.put_line('Your search returned too many results, please narrow down your search.');
+ RETURN NULL;
+END;
+/
+
+--Feature 17 - Add a service to an event: Input: Event reservationID, specific service. Add the service to the event for a particular date. Multiple services are allowed on a reservation for the same date. 
+
+create or replace PROCEDURE Add_Event_Service 
+(
+    eventName             in varchar, 
+    new_service_name     in varchar, 
+    number_of_people    in int
+) 
+IS
+--Declare Variables
+    varService Service_Type%ROWTYPE;
+    eventId int;
+    totalAmount number;
+    varReservationId int;
+    debugVal int := 1;
+
+BEGIN
+dbms_output.put_line ('entering into procedure Add_Event_Service');
+
+-----------------
+--Extract the service details to add to the event; Extract the reservation id to update the invoice for that reservation
+-----------------
+    select GET_EVENT_ID(eventName) INTO eventId FROM DUAL;
+    select * into varService from Service_Type where service_name = new_service_name;
+    select reservation_id into varReservationId from reservation where event_id = eventId;
+
+-----------------
+--Transform
+-- check if number of persons has been added for the service
+-- if the service is per person, calculate the new amount to be reflected on the invoice
+-----------------
+
+    if(debugVal = 1)  then
+      dbms_output.put_line('Entering proc');
+    end if;
+
+    if (number_of_people = 0 AND varService.service_chargetype = 'PERSON')   then 
+        dbms_output.put_line('This is a per person service. Please enter a valid number of people');
+        return;       
+    elsif (number_of_people >= 1 AND varService.service_chargetype = 'PERSON')  then
+        totalAmount := varService.service_amount * number_of_people;
+    else
+       totalAmount := varService.service_amount;
+    end if;
+
+    dbms_output.put_line('The total amount for this service is '|| totalAmount);
+
+-----------------
+--Load-
+-- Insert the new service into the event_service table and map it to the event
+-- Update the invoices table to reflect the new pricing after the new service is added
+-----------------
+    insert into event_service values(EVENTSERVICEID.NEXTVAL, eventId, varService.service_id, totalAmount);
+    update invoices set total_amount = total_amount + totalAmount where reservation_id = varReservationId;
+
+END;
+/
+
+--Feature 18 - ReservationServicesReport: Input the event reservation ID and display all services on this reservation. Also print the number of attendees of the event. 
+
+CREATE OR REPLACE PROCEDURE RESERVATION_SERVICES_REPORT(EVENTNAME in varchar)
+IS
+-------------------------------------------------------------------------------------------------------------------
+--DECLARE VARIABLES
+-------------------------------------------------------------------------------------------------------------------
+varResId int;
+varServiceName varchar(100);
+varNumberOfPeople int;
+debugVal int :=0;
+CURSOR c_ReservationServiceReport IS 
+SELECT R.RESERVATION_ID, ST.SERVICE_NAME, E.NUMBER_OF_PEOPLE FROM
+RESERVATION R INNER JOIN EVENT E ON E.EVENT_ID = R.EVENT_ID
+INNER JOIN EVENT_SERVICE ES ON R.EVENT_ID = ES.EVENT_ID
+INNER JOIN SERVICE_TYPE ST ON ST.SERVICE_ID = ES.SERVICE_ID
+WHERE E.EVENT_NAME = EVENTNAME;
+
+BEGIN
+dbms_output.put_line ('entering into procedure RESERVATION_SERVICES_REPORT');
+-------------------------------------------------------------------------------------------------------------------
+--OPEN CURSOR
+------------------------------------------------------------------------------------------------------------------
+OPEN c_ReservationServiceReport;
+LOOP 
+IF(debugVal = 1) THEN
+dbms_output.put_line('In the loop');
+END IF;
+-------------------------------------------------------------------------------------------------------------------
+--READ VALUES INTO THE CURSOR
+-------------------------------------------------------------------------------------------------------------------
+    FETCH c_ReservationServiceReport into varResId, varServiceName, varNumberOfPeople;
+    IF c_ReservationServiceReport%NOTFOUND THEN 
+      dbms_output.put_line('No services for this reservation');
+      EXIT;
+    ELSE
+    dbms_output.put_line('RESERVATION ID- ' ||varResId ||'    '||'SERVICE NAME- ' ||varServiceName||'    '|| 'NUMBER OF PEOPLE- ' ||varNumberOfPeople);
+    END IF;
+END LOOP;
+IF(debugVal = 1) THEN
+dbms_output.put_line('Out of the loop');
+END IF;
+-------------------------------------------------------------------------------------------------------------------
+--CLOSE CURSOR
+------------------------------------------------------------------------------------------------------------------
+CLOSE c_ReservationServiceReport;
+IF(debugVal = 1) THEN
+dbms_output.put_line('Cursor closed');
+END IF;
+-------------------------------------------------------------------------------------------------------------------
+--HANDLE EXCEPTIONS
+------------------------------------------------------------------------------------------------------------------
+EXCEPTION
+WHEN no_data_found THEN
+IF(debugVal = 1) THEN
+dbms_output.put_line('no data found');
+END IF;
+dbms_output.put_line('No services for this reservation');
+
+END;
+/
+
+--Feature 19 - ShowSpecificServiceReport: Input the service name, and display information on all reservations that have this service in all hotels
+
+CREATE OR REPLACE PROCEDURE SPECIFIC_SERVICE_REPORT(SERVICENAME in varchar)
+IS
+-------------------------------------------------------------------------------------------------------------------
+--DECLARE VARIABLES
+-------------------------------------------------------------------------------------------------------------------
+varResId int;
+varEventName varchar(100);
+varHotelName varchar(100);
+varServiceName varchar(100);
+varNumberOfPeople int;
+varCounter int :=0;
+debugVal int :=0;
+CURSOR c_SpecificServiceReport IS 
+select R.RESERVATION_ID, E.EVENT_NAME, E.NUMBER_OF_PEOPLE, ST.SERVICE_NAME, H.HOTEL_NAME 
+FROM
+RESERVATION R INNER JOIN EVENT E ON R.EVENT_ID = E.EVENT_ID
+INNER JOIN HOTEL H ON E.HOTEL_ID = H.HOTEL_ID
+INNER JOIN EVENT_SERVICE ES ON E.EVENT_ID = ES.EVENT_ID
+INNER JOIN SERVICE_TYPE ST ON ES.SERVICE_ID = ST.SERVICE_ID
+WHERE ST.SERVICE_NAME = SERVICENAME;
+
+BEGIN
+dbms_output.put_line ('entering into procedure Specific_Service_Report');
+-------------------------------------------------------------------------------------------------------------------
+--OPEN CURSOR
+------------------------------------------------------------------------------------------------------------------
+OPEN c_SpecificServiceReport;
+LOOP 
+IF(debugVal = 1) THEN
+dbms_output.put_line('In the loop');
+END IF;
+-------------------------------------------------------------------------------------------------------------------
+--READ VALUES INTO THE CURSOR
+-------------------------------------------------------------------------------------------------------------------
+    FETCH c_SpecificServiceReport into varResId, varEventName, varNumberOfPeople, varServiceName, varHotelName;
+    IF c_SpecificServiceReport%NOTFOUND THEN 
+      IF varCounter = 0 THEN
+      dbms_output.put_line('No reservations with this service');
+      END IF;
+      EXIT;
+    ELSE
+    dbms_output.put_line('RESERVATION ID- ' ||varResId ||'    '||'EVENT NAME- ' ||varEventName ||'    '||'NUMBER OF PEOPLE- ' ||varNumberOFPeople||'    '|| 'SERVICE NAME- ' ||varServiceName || '    '||'HOTEL NAME- '|| varHotelName);
+    varCounter := varCounter +1;
+    END IF;
+END LOOP;
+IF(debugVal = 1) THEN
+dbms_output.put_line('Out of the loop');
+END IF;
+-------------------------------------------------------------------------------------------------------------------
+--CLOSE CURSOR
+------------------------------------------------------------------------------------------------------------------
+CLOSE c_SpecificServiceReport;
+IF(debugVal = 1) THEN
+dbms_output.put_line('Cursor closed');
+END IF;
+-------------------------------------------------------------------------------------------------------------------
+--HANDLE EXCEPTIONS
+------------------------------------------------------------------------------------------------------------------
+EXCEPTION
+WHEN no_data_found THEN
+IF(debugVal = 1) THEN
+dbms_output.put_line('no data found');
+END IF;
+dbms_output.put_line('No services for this reservation');
+
+END;
+/
+
+
+--Feature 21 - IncomebyStateReport: Input is a specific state. 
+
+CREATE OR REPLACE PROCEDURE INCOME_BY_STATE_REPORT(st in varchar)
+IS
+TOTAL_INCOME INT := 0;
+EV_ID INT;
+ROOM_INC NUMBER;
+SERVICE_INC NUMBER;
+GR_TOTAL NUMBER;
+VARDEBUG INT := 0;
+varCounter INT := 0;
+CURSOR STATE_INCOME IS 
+SELECT E.EVENT_ID, SUM(RT.ROOM_PRICE) AS ROOM_INCOME, SUM(ES.EVENT_SERVICE_AMOUNT) AS SERVICE_INCOME, SUM(RT.ROOM_PRICE)+SUM(ES.EVENT_SERVICE_AMOUNT) AS GRAND_TOTAL FROM EVENT E
+INNER JOIN ROOM_TYPE RT ON RT.ROOM_ID = E.ROOM_ID
+INNER JOIN EVENT_SERVICE ES ON ES.EVENT_ID = E.EVENT_ID
+INNER JOIN SERVICE_TYPE ST ON ST.SERVICE_ID = ES.SERVICE_ID
+INNER JOIN HOTEL H ON H.HOTEL_ID = E.HOTEL_ID
+WHERE H.HOTEL_STATE = st or H.HOTEL_ADDRESS like '%'||st||'%'
+GROUP BY E.EVENT_ID;
+
+BEGIN
+dbms_output.put_line ('entering into procedure Services_Income_Report');
+OPEN STATE_INCOME;
+LOOP 
+IF(VARDEBUG = 1) THEN
+dbms_output.put_line('In the loop');
+END IF;
+FETCH STATE_INCOME INTO EV_ID,ROOM_INC,SERVICE_INC,GR_TOTAL;
+IF STATE_INCOME%NOTFOUND THEN 
+      IF varCounter = 0 THEN
+      dbms_output.put_line('No income from services in this state');
+      END IF;
+      EXIT;
+    ELSE
+    dbms_output.put_line('EVENT ID- ' ||EV_ID ||'    '||'ROOM INCOME- ' ||ROOM_INC||'    '||'SERVICE INCOME- ' ||SERVICE_INC ||'    '||'TOTAL INCOME FOR EVENT- ' ||GR_TOTAL);
+    varCounter := varCounter +1;
+    TOTAL_INCOME := TOTAL_INCOME + GR_TOTAL;
+END IF;
+END LOOP;
+IF TOTAL_INCOME > 0 THEN
+  dbms_output.put_line('GRAND TOTAL FOR STATE- ' ||TOTAL_INCOME);
+END IF;
+IF(VARDEBUG = 1) THEN
+dbms_output.put_line('Out of the loop');
+END IF;
+-------------------------------------------------------------------------------------------------------------------
+--CLOSE CURSOR
+------------------------------------------------------------------------------------------------------------------
+CLOSE STATE_INCOME;
+IF(VARDEBUG = 1) THEN
+dbms_output.put_line('Cursor closed');
+END IF;
+-------------------------------------------------------------------------------------------------------------------
+--HANDLE EXCEPTIONS
+------------------------------------------------------------------------------------------------------------------
+EXCEPTION
+WHEN no_data_found THEN
+IF(VARDEBUG = 1) THEN
+dbms_output.put_line('no data found');
+END IF;
+dbms_output.put_line('No income from events in this state');
+END;
+/
+
+
+--FEATURE 20 - Given a hotelID, calculate and display income from all services in all reservations in that hotel 
+
+CREATE OR REPLACE PROCEDURE SERVICES_INCOME_REPORT(address in varchar)
+IS
+TOTAL_INCOME INT := 0;
+SERVICENAME VARCHAR(100);
+SERVICEAMOUNT INT;
+VARDEBUG INT := 0;
+varCounter INT := 0;
+CURSOR EVENT_INCOME IS 
+SELECT ST.SERVICE_NAME, ES.EVENT_SERVICE_AMOUNT 
+FROM 
+EVENT_SERVICE ES INNER JOIN EVENT EV ON EV.EVENT_ID = ES.EVENT_ID
+INNER JOIN HOTEL H ON EV.HOTEL_ID = H.HOTEL_ID
+INNER JOIN SERVICE_TYPE ST ON ST.SERVICE_ID = ES.SERVICE_ID
+WHERE H.HOTEL_ADDRESS LIKE '%'||address||'%' AND ROWNUM = 1;
+BEGIN
+dbms_output.put_line ('entering into procedure Services_Income_Report');
+OPEN EVENT_INCOME;
+LOOP 
+IF(VARDEBUG = 1) THEN
+dbms_output.put_line('In the loop');
+END IF;
+FETCH EVENT_INCOME INTO SERVICENAME,SERVICEAMOUNT;
+IF EVENT_INCOME%NOTFOUND THEN 
+      IF varCounter = 0 THEN
+      dbms_output.put_line('No services reserved at this hotel');
+      END IF;
+      EXIT;
+    ELSE
+    dbms_output.put_line('SERVICE NAME- ' ||SERVICENAME ||'    '||'SERVICE AMOUNT- ' ||SERVICEAMOUNT);
+    varCounter := varCounter +1;
+    TOTAL_INCOME := TOTAL_INCOME + SERVICEAMOUNT;
+END IF;
+IF TOTAL_INCOME > 0 THEN
+  dbms_output.put_line('TOTAL INCOME FROM ALL SERVICES- ' ||TOTAL_INCOME);
+END IF;
+END LOOP;
+IF(VARDEBUG = 1) THEN
+dbms_output.put_line('Out of the loop');
+END IF;
+-------------------------------------------------------------------------------------------------------------------
+--CLOSE CURSOR
+------------------------------------------------------------------------------------------------------------------
+CLOSE EVENT_INCOME;
+IF(VARDEBUG = 1) THEN
+dbms_output.put_line('Cursor closed');
+END IF;
+-------------------------------------------------------------------------------------------------------------------
+--HANDLE EXCEPTIONS
+------------------------------------------------------------------------------------------------------------------
+EXCEPTION
+WHEN no_data_found THEN
+IF(VARDEBUG = 1) THEN
+dbms_output.put_line('no data found');
+END IF;
+dbms_output.put_line('No services reserved at this hotel');
+END;
+/
+
